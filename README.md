@@ -3,6 +3,24 @@
 Python code for the report *PID Control: A Beginner's Guide*. The PID controller, the plant models and
 the simulator are written from scratch with NumPy and Matplotlib only — no control library.
 
+## Approach
+
+1. **Build the pieces separately.** The plant (`plants.py`) is a state-space model integrated with RK4.
+   The PID (`pid.py`) is the discrete loop a microcontroller runs: error, running sum, slope, output.
+   The simulator (`simulate.py`) integrates the plant every 0.5 ms but only lets the controller update
+   every `dt`, holding its output in between, so a slow controller can be studied.
+2. **Check the simulator against hand calculations before trusting it.** For P-only control the final
+   error must be `20 / (20 + Kp)` and the overshoot must follow the damping ratio
+   `ζ = (10 + Kd) / (2·√(20 + Kp))`. The scripts print the calculation next to the simulation.
+3. **Tune one gain at a time** on the 1 kg mass–spring–damper: P for speed, then D to remove the
+   bouncing, then I to remove the final gap.
+4. **Add real-world problems one at a time** (30 N motor limit, ±1 mm sensor noise, a jump in the
+   target, slow updates), show each one breaking the controller, then switch on its fix. All fixes
+   are options of the same `PID` class, so one class produces every "before" and "after".
+5. **Test the tuning method on a second system**, 1/(s+1)³, with Ziegler–Nichols, then improve it.
+
+The [write-up](WRITEUP.md) covers what worked, what didn't, and what I would try next.
+
 ## Setup
 
 ```bash
